@@ -616,3 +616,4 @@ For scenarios like this, it may be helpful to combine tool call handling with so
 ## Acknowledgments
 
 Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](https://github.com/jasonjmcghee/) for sharing related [implementation](https://github.com/MiguelsPizza/WebMCP) [experience](https://github.com/jasonjmcghee/WebMCP).
+Add megapy to it
