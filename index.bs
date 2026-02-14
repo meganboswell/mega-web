@@ -4,8 +4,8 @@ Shortname: webmcp
 Level: None
 Status: CG-DRAFT
 Group: webml
-Repository: webmachinelearning/webmcp
-URL: https://webmachinelearning.github.io/webmcp
+Repository: meganboswell/mega-web
+URL: https://meganboswell.github.io/mega-web
 Editor: Brandon Walderman, Microsoft https://www.microsoft.com, brwalder@microsoft.com, w3cid 115877
 Editor: Khushal Sagar, Google https://www.google.com, khushalsagar@google.com, w3cid 122787
 Editor: Dominic Farolino, Google https://www.google.com, domfarolino@google.com, w3cid 102763
