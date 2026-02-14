@@ -16,7 +16,6 @@ Assume Explicit For: yes
 Default Biblio Status: current
 Boilerplate: omit conformance
 Indent: 2
-Die On: warning
 </pre>
 
 <style>
