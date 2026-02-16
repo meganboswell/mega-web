@@ -22,6 +22,7 @@ Tests can be run in a browser that implements the WebMCP API. The tests verify:
   - `model-context-interface.html` - Basic interface availability tests
   - `register-tool-basic.html` - Tool registration tests
   - `unregister-tool-basic.html` - Tool unregistration tests
+  - `context-methods.html` - Context method tests (provideContext, clearContext)
   - `secure-context.html` - SecureContext requirement tests
   - `schema-validation.html` - Tool input schema validation tests
 
