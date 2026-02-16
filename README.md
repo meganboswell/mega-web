@@ -613,7 +613,26 @@ Some tools that a web app may want to provide for agents and assistive technolog
 
 For scenarios like this, it may be helpful to combine tool call handling with something like the ['launch'](https://github.com/WICG/web-app-launch/blob/main/sw_launch_event.md) event. A client application might attach a tool call to a "launch" request which is handled entirely in a service worker without spawning a browser window.
 
+## Testing
+
+This repository includes a suite of Web Platform Tests (WPT) for the WebMCP API. These tests verify conformance to the specification and help ensure consistent implementation across browsers.
+
+### Test Coverage
+
+The test suite covers:
+- **Interface availability**: Tests that the `ModelContext` interface and `navigator.modelContext` are properly exposed
+- **Tool registration**: Tests for `registerTool()` including validation, duplicate handling, and schema validation
+- **Tool unregistration**: Tests for `unregisterTool()` including error handling for non-existent tools
+- **Context methods**: Tests for `provideContext()` and `clearContext()` methods
+- **SecureContext requirements**: Tests verifying that WebMCP is only available in secure contexts
+- **Schema validation**: Tests for JSON Schema support in tool definitions
+
+### Running Tests
+
+Tests are located in the `tests/` directory and follow WPT conventions. They can be run in any browser that implements the WebMCP API using the testharness.js framework.
+
+See [tests/README.md](./tests/README.md) for more details.
+
 ## Acknowledgments
 
 Many thanks to [Alex Nahas](https://github.com/MiguelsPizza) and [Jason McGhee](https://github.com/jasonjmcghee/) for sharing related [implementation](https://github.com/MiguelsPizza/WebMCP) [experience](https://github.com/jasonjmcghee/WebMCP).
-Add megapy to it

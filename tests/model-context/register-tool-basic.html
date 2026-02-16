@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext registerTool Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test basic tool registration
+    promise_test(async () => {
+      const toolDefinition = {
+        name: 'test_tool',
+        description: 'A test tool',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            input: { type: 'string' }
+          }
+        },
+        callback: async (input) => {
+          return { result: 'success' };
+        }
+      };
+
+      await navigator.modelContext.registerTool(toolDefinition);
+      // If we get here without throwing, the registration succeeded
+      assert_true(true, 'Tool registration should succeed');
+      
+      // Clean up
+      await navigator.modelContext.unregisterTool('test_tool');
+    }, 'registerTool succeeds with valid tool definition');
+
+    // Test registration with minimal required fields
+    promise_test(async () => {
+      const minimalTool = {
+        name: 'minimal_tool',
+        description: 'Minimal tool',
+        callback: async () => ({ success: true })
+      };
+
+      await navigator.modelContext.registerTool(minimalTool);
+      assert_true(true, 'Minimal tool registration should succeed');
+      
+      await navigator.modelContext.unregisterTool('minimal_tool');
+    }, 'registerTool succeeds with minimal required fields');
+
+    // Test duplicate tool name rejection
+    promise_test(async (t) => {
+      const tool1 = {
+        name: 'duplicate_tool',
+        description: 'First tool',
+        callback: async () => ({ result: 1 })
+      };
+
+      const tool2 = {
+        name: 'duplicate_tool',
+        description: 'Second tool with same name',
+        callback: async () => ({ result: 2 })
+      };
+
+      await navigator.modelContext.registerTool(tool1);
+      
+      await promise_rejects_dom(t, 'InvalidStateError',
+        navigator.modelContext.registerTool(tool2),
+        'Registering tool with duplicate name should throw InvalidStateError');
+      
+      await navigator.modelContext.unregisterTool('duplicate_tool');
+    }, 'registerTool rejects duplicate tool names');
+
+    // Test missing required fields
+    promise_test(async (t) => {
+      const invalidTool = {
+        description: 'Missing name field',
+        callback: async () => ({})
+      };
+
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.registerTool(invalidTool),
+        'registerTool should reject tool without name');
+    }, 'registerTool rejects tool without name');
+
+    promise_test(async (t) => {
+      const invalidTool = {
+        name: 'no_description',
+        callback: async () => ({})
+      };
+
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.registerTool(invalidTool),
+        'registerTool should reject tool without description');
+    }, 'registerTool rejects tool without description');
+
+    promise_test(async (t) => {
+      const invalidTool = {
+        name: 'no_callback',
+        description: 'Missing callback'
+      };
+
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.registerTool(invalidTool),
+        'registerTool should reject tool without callback');
+    }, 'registerTool rejects tool without callback');
+
+    // Test invalid callback type
+    promise_test(async (t) => {
+      const invalidTool = {
+        name: 'invalid_callback',
+        description: 'Non-function callback',
+        callback: 'not a function'
+      };
+
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.registerTool(invalidTool),
+        'registerTool should reject tool with non-function callback');
+    }, 'registerTool rejects tool with non-function callback');
+
+    // Test tool with complex input schema
+    promise_test(async () => {
+      const complexTool = {
+        name: 'complex_schema_tool',
+        description: 'Tool with complex schema',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'number', minimum: 0 },
+            tags: {
+              type: 'array',
+              items: { type: 'string' }
+            }
+          },
+          required: ['name', 'age']
+        },
+        callback: async (input) => {
+          return { processed: input.name };
+        }
+      };
+
+      await navigator.modelContext.registerTool(complexTool);
+      assert_true(true, 'Tool with complex schema should register');
+      
+      await navigator.modelContext.unregisterTool('complex_schema_tool');
+    }, 'registerTool succeeds with complex input schema');
+  </script>
+</body>
+</html>

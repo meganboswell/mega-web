@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext SecureContext Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test that ModelContext is only available in secure contexts
+    test(() => {
+      if (window.isSecureContext) {
+        assert_true('ModelContext' in window,
+          'ModelContext should be available in secure contexts');
+        assert_true('modelContext' in navigator,
+          'navigator.modelContext should be available in secure contexts');
+      } else {
+        assert_false('ModelContext' in window,
+          'ModelContext should not be available in non-secure contexts');
+        assert_false('modelContext' in navigator,
+          'navigator.modelContext should not be available in non-secure contexts');
+      }
+    }, 'ModelContext availability respects SecureContext requirement');
+
+    // This test only runs in secure contexts
+    if (window.isSecureContext) {
+      // Test that all methods work in secure context
+      promise_test(async () => {
+        const tool = {
+          name: 'secure_context_tool',
+          description: 'Test tool in secure context',
+          callback: async () => ({ secure: true })
+        };
+
+        await navigator.modelContext.registerTool(tool);
+        assert_true(true, 'registerTool should work in secure context');
+        
+        await navigator.modelContext.unregisterTool('secure_context_tool');
+      }, 'registerTool works in secure context');
+
+      promise_test(async () => {
+        await navigator.modelContext.provideContext('test context');
+        assert_true(true, 'provideContext should work in secure context');
+      }, 'provideContext works in secure context');
+
+      promise_test(async () => {
+        await navigator.modelContext.clearContext();
+        assert_true(true, 'clearContext should work in secure context');
+      }, 'clearContext works in secure context');
+
+      test(() => {
+        assert_equals(typeof navigator.modelContext, 'object',
+          'navigator.modelContext should be an object');
+        assert_not_equals(navigator.modelContext, null,
+          'navigator.modelContext should not be null');
+      }, 'navigator.modelContext is properly defined in secure context');
+    }
+
+    // Test for information about secure context
+    test(() => {
+      const expectedSecure = location.protocol === 'https:' || 
+                           location.hostname === 'localhost' ||
+                           location.hostname === '127.0.0.1';
+      
+      if (expectedSecure) {
+        assert_true(window.isSecureContext,
+          'Context should be secure for https or localhost');
+      }
+    }, 'Secure context detection is correct');
+  </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext Context Methods Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test provideContext with string
+    promise_test(async () => {
+      await navigator.modelContext.provideContext('This is test context');
+      assert_true(true, 'provideContext should succeed with string');
+    }, 'provideContext succeeds with string context');
+
+    // Test provideContext with object
+    promise_test(async () => {
+      const contextData = {
+        page: 'test',
+        user: { id: 123, name: 'Test User' }
+      };
+      
+      await navigator.modelContext.provideContext(JSON.stringify(contextData));
+      assert_true(true, 'provideContext should succeed with object');
+    }, 'provideContext succeeds with JSON object');
+
+    // Test provideContext with empty string
+    promise_test(async () => {
+      await navigator.modelContext.provideContext('');
+      assert_true(true, 'provideContext should succeed with empty string');
+    }, 'provideContext succeeds with empty string');
+
+    // Test provideContext multiple times (should update context)
+    promise_test(async () => {
+      await navigator.modelContext.provideContext('First context');
+      await navigator.modelContext.provideContext('Second context');
+      await navigator.modelContext.provideContext('Third context');
+      assert_true(true, 'provideContext should succeed multiple times');
+    }, 'provideContext can be called multiple times');
+
+    // Test clearContext
+    promise_test(async () => {
+      await navigator.modelContext.provideContext('Context to clear');
+      await navigator.modelContext.clearContext();
+      assert_true(true, 'clearContext should succeed');
+    }, 'clearContext succeeds after provideContext');
+
+    // Test clearContext without prior provideContext
+    promise_test(async () => {
+      await navigator.modelContext.clearContext();
+      assert_true(true, 'clearContext should succeed even without prior context');
+    }, 'clearContext succeeds without prior context');
+
+    // Test clearContext multiple times
+    promise_test(async () => {
+      await navigator.modelContext.clearContext();
+      await navigator.modelContext.clearContext();
+      assert_true(true, 'clearContext should succeed multiple times');
+    }, 'clearContext can be called multiple times');
+
+    // Test context lifecycle
+    promise_test(async () => {
+      // Provide context
+      await navigator.modelContext.provideContext('Initial context');
+      
+      // Update context
+      await navigator.modelContext.provideContext('Updated context');
+      
+      // Clear context
+      await navigator.modelContext.clearContext();
+      
+      // Provide new context after clearing
+      await navigator.modelContext.provideContext('New context after clear');
+      
+      assert_true(true, 'Full context lifecycle should work');
+    }, 'Context can be provided, updated, cleared, and re-provided');
+
+    // Test provideContext with special characters
+    promise_test(async () => {
+      const specialContext = 'Context with <html>, "quotes", \'apostrophes\', & ampersands';
+      await navigator.modelContext.provideContext(specialContext);
+      assert_true(true, 'provideContext should handle special characters');
+    }, 'provideContext handles special characters');
+
+    // Test provideContext with long string
+    promise_test(async () => {
+      const longContext = 'x'.repeat(10000);
+      await navigator.modelContext.provideContext(longContext);
+      assert_true(true, 'provideContext should handle long strings');
+    }, 'provideContext handles long strings');
+
+    // Test provideContext with unicode
+    promise_test(async () => {
+      const unicodeContext = 'Unicode: 你好世界 🌍 مرحبا العالم';
+      await navigator.modelContext.provideContext(unicodeContext);
+      assert_true(true, 'provideContext should handle unicode');
+    }, 'provideContext handles unicode characters');
+
+    // Test provideContext with null should reject
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.provideContext(null),
+        'provideContext should reject null');
+    }, 'provideContext rejects null argument');
+
+    // Test provideContext with undefined should reject
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.provideContext(undefined),
+        'provideContext should reject undefined');
+    }, 'provideContext rejects undefined argument');
+
+    // Test provideContext with non-string should reject
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.provideContext(123),
+        'provideContext should reject non-string');
+    }, 'provideContext rejects non-string argument');
+  </script>
+</body>
+</html>

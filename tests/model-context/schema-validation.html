@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext Schema Validation Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test tool registration with valid JSON Schema
+    promise_test(async () => {
+      const tool = {
+        name: 'typed_tool',
+        description: 'Tool with typed schema',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+            count: { type: 'number' }
+          },
+          required: ['message']
+        },
+        callback: async (input) => ({ echo: input.message })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with valid JSON Schema should register');
+      
+      await navigator.modelContext.unregisterTool('typed_tool');
+    }, 'registerTool accepts valid JSON Schema');
+
+    // Test with string type schema
+    promise_test(async () => {
+      const tool = {
+        name: 'string_input_tool',
+        description: 'Tool accepting string',
+        inputSchema: {
+          type: 'string'
+        },
+        callback: async (input) => ({ length: input.length })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with string schema should register');
+      
+      await navigator.modelContext.unregisterTool('string_input_tool');
+    }, 'registerTool accepts string type schema');
+
+    // Test with number type schema
+    promise_test(async () => {
+      const tool = {
+        name: 'number_input_tool',
+        description: 'Tool accepting number',
+        inputSchema: {
+          type: 'number',
+          minimum: 0,
+          maximum: 100
+        },
+        callback: async (input) => ({ doubled: input * 2 })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with number schema should register');
+      
+      await navigator.modelContext.unregisterTool('number_input_tool');
+    }, 'registerTool accepts number type schema with constraints');
+
+    // Test with array type schema
+    promise_test(async () => {
+      const tool = {
+        name: 'array_input_tool',
+        description: 'Tool accepting array',
+        inputSchema: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 1
+        },
+        callback: async (input) => ({ count: input.length })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with array schema should register');
+      
+      await navigator.modelContext.unregisterTool('array_input_tool');
+    }, 'registerTool accepts array type schema');
+
+    // Test with nested object schema
+    promise_test(async () => {
+      const tool = {
+        name: 'nested_object_tool',
+        description: 'Tool with nested schema',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            user: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                email: { type: 'string', format: 'email' }
+              },
+              required: ['name']
+            },
+            preferences: {
+              type: 'object',
+              properties: {
+                theme: { type: 'string', enum: ['light', 'dark'] },
+                notifications: { type: 'boolean' }
+              }
+            }
+          },
+          required: ['user']
+        },
+        callback: async (input) => ({ userName: input.user.name })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with nested object schema should register');
+      
+      await navigator.modelContext.unregisterTool('nested_object_tool');
+    }, 'registerTool accepts nested object schemas');
+
+    // Test with enum constraint
+    promise_test(async () => {
+      const tool = {
+        name: 'enum_tool',
+        description: 'Tool with enum constraint',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            action: {
+              type: 'string',
+              enum: ['create', 'update', 'delete']
+            }
+          },
+          required: ['action']
+        },
+        callback: async (input) => ({ action: input.action })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with enum schema should register');
+      
+      await navigator.modelContext.unregisterTool('enum_tool');
+    }, 'registerTool accepts schema with enum constraints');
+
+    // Test with oneOf/anyOf schemas
+    promise_test(async () => {
+      const tool = {
+        name: 'union_type_tool',
+        description: 'Tool with union types',
+        inputSchema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'number' }
+          ]
+        },
+        callback: async (input) => ({ type: typeof input })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool with oneOf schema should register');
+      
+      await navigator.modelContext.unregisterTool('union_type_tool');
+    }, 'registerTool accepts oneOf/union type schemas');
+
+    // Test with optional schema (no inputSchema provided)
+    promise_test(async () => {
+      const tool = {
+        name: 'no_schema_tool',
+        description: 'Tool without input schema',
+        callback: async (input) => ({ received: input })
+      };
+
+      await navigator.modelContext.registerTool(tool);
+      assert_true(true, 'Tool without inputSchema should register');
+      
+      await navigator.modelContext.unregisterTool('no_schema_tool');
+    }, 'registerTool succeeds when inputSchema is omitted');
+
+    // Test with invalid schema (not an object)
+    promise_test(async (t) => {
+      const tool = {
+        name: 'invalid_schema_tool',
+        description: 'Tool with invalid schema',
+        inputSchema: 'not a valid schema',
+        callback: async () => ({})
+      };
+
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.registerTool(tool),
+        'registerTool should reject non-object schema');
+    }, 'registerTool rejects non-object inputSchema');
+  </script>
+</body>
+</html>

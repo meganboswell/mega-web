@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext Interface Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test that the ModelContext interface exists
+    test(() => {
+      assert_true('ModelContext' in window, 'ModelContext should be defined');
+    }, 'ModelContext interface is available');
+
+    // Test that navigator.modelContext is available
+    test(() => {
+      assert_true('modelContext' in navigator, 'navigator.modelContext should be defined');
+    }, 'navigator.modelContext is available');
+
+    // Test ModelContext instance type
+    test(() => {
+      assert_true(navigator.modelContext instanceof ModelContext, 
+        'navigator.modelContext should be an instance of ModelContext');
+    }, 'navigator.modelContext is a ModelContext instance');
+
+    // Test ModelContext has required methods
+    test(() => {
+      assert_true('provideContext' in ModelContext.prototype,
+        'ModelContext should have provideContext method');
+      assert_equals(typeof ModelContext.prototype.provideContext, 'function',
+        'provideContext should be a function');
+    }, 'ModelContext.provideContext method exists');
+
+    test(() => {
+      assert_true('clearContext' in ModelContext.prototype,
+        'ModelContext should have clearContext method');
+      assert_equals(typeof ModelContext.prototype.clearContext, 'function',
+        'clearContext should be a function');
+    }, 'ModelContext.clearContext method exists');
+
+    test(() => {
+      assert_true('registerTool' in ModelContext.prototype,
+        'ModelContext should have registerTool method');
+      assert_equals(typeof ModelContext.prototype.registerTool, 'function',
+        'registerTool should be a function');
+    }, 'ModelContext.registerTool method exists');
+
+    test(() => {
+      assert_true('unregisterTool' in ModelContext.prototype,
+        'ModelContext should have unregisterTool method');
+      assert_equals(typeof ModelContext.prototype.unregisterTool, 'function',
+        'unregisterTool should be a function');
+    }, 'ModelContext.unregisterTool method exists');
+
+    // Test that methods return promises
+    promise_test(async () => {
+      const result = navigator.modelContext.provideContext('test context');
+      assert_true(result instanceof Promise, 
+        'provideContext should return a Promise');
+      // Don't await - we're just testing the return type
+    }, 'ModelContext.provideContext returns a Promise');
+
+    promise_test(async () => {
+      const result = navigator.modelContext.clearContext();
+      assert_true(result instanceof Promise,
+        'clearContext should return a Promise');
+    }, 'ModelContext.clearContext returns a Promise');
+  </script>
+</body>
+</html>
