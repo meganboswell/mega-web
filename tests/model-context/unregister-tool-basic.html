@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModelContext unregisterTool Tests</title>
+  <link rel="help" href="https://webmachinelearning.github.io/webmcp/">
+  <script src="/resources/testharness.js"></script>
+  <script src="/resources/testharnessreport.js"></script>
+</head>
+<body>
+  <script>
+    'use strict';
+
+    // Test basic tool unregistration
+    promise_test(async () => {
+      const toolDefinition = {
+        name: 'tool_to_unregister',
+        description: 'A tool that will be unregistered',
+        callback: async () => ({ success: true })
+      };
+
+      await navigator.modelContext.registerTool(toolDefinition);
+      await navigator.modelContext.unregisterTool('tool_to_unregister');
+      
+      assert_true(true, 'Tool unregistration should succeed');
+    }, 'unregisterTool succeeds for registered tool');
+
+    // Test unregistering non-existent tool
+    promise_test(async (t) => {
+      await promise_rejects_dom(t, 'NotFoundError',
+        navigator.modelContext.unregisterTool('non_existent_tool'),
+        'Unregistering non-existent tool should throw NotFoundError');
+    }, 'unregisterTool rejects for non-existent tool');
+
+    // Test tool can be re-registered after unregistration
+    promise_test(async () => {
+      const toolDefinition = {
+        name: 'reregisterable_tool',
+        description: 'A tool that will be registered twice',
+        callback: async () => ({ value: 1 })
+      };
+
+      // Register, unregister, then register again
+      await navigator.modelContext.registerTool(toolDefinition);
+      await navigator.modelContext.unregisterTool('reregisterable_tool');
+      await navigator.modelContext.registerTool(toolDefinition);
+      
+      assert_true(true, 'Tool should be re-registerable after unregistration');
+      
+      // Clean up
+      await navigator.modelContext.unregisterTool('reregisterable_tool');
+    }, 'Tool can be re-registered after unregistration');
+
+    // Test unregistering with invalid name types
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.unregisterTool(null),
+        'unregisterTool should reject null name');
+    }, 'unregisterTool rejects null tool name');
+
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.unregisterTool(undefined),
+        'unregisterTool should reject undefined name');
+    }, 'unregisterTool rejects undefined tool name');
+
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.unregisterTool(123),
+        'unregisterTool should reject non-string name');
+    }, 'unregisterTool rejects non-string tool name');
+
+    // Test unregistering empty string
+    promise_test(async (t) => {
+      await promise_rejects_js(t, TypeError,
+        navigator.modelContext.unregisterTool(''),
+        'unregisterTool should reject empty string name');
+    }, 'unregisterTool rejects empty string tool name');
+
+    // Test multiple registrations and unregistrations
+    promise_test(async () => {
+      const tools = [
+        {
+          name: 'tool_1',
+          description: 'First tool',
+          callback: async () => ({ id: 1 })
+        },
+        {
+          name: 'tool_2',
+          description: 'Second tool',
+          callback: async () => ({ id: 2 })
+        },
+        {
+          name: 'tool_3',
+          description: 'Third tool',
+          callback: async () => ({ id: 3 })
+        }
+      ];
+
+      // Register all tools
+      for (const tool of tools) {
+        await navigator.modelContext.registerTool(tool);
+      }
+
+      // Unregister middle tool
+      await navigator.modelContext.unregisterTool('tool_2');
+
+      // Should still be able to unregister other tools
+      await navigator.modelContext.unregisterTool('tool_1');
+      await navigator.modelContext.unregisterTool('tool_3');
+      
+      assert_true(true, 'Multiple tools can be registered and unregistered independently');
+    }, 'Multiple tools can be unregistered independently');
+  </script>
+</body>
+</html>
